@@ -329,9 +329,9 @@ python scripts/p3_router_popqa.py
 If you use this framework or any part of its code in your research, please cite this work upon publication. The ablation study is structured for **full methodological reproducibility**.
 
 ```bibtex
-@misc{ragsemanticRouter2025,
+@misc{ragsemanticRouter2026,
   title   = {Semantic Routing for RAG: Training-Free Ablation Study on PopQA},
-  year    = {2025},
+  year    = {2026},
   note    = {Ablation study using Llama 3.1 8B Instruct (Q4\_K\_M) on PopQA.
              Shannon entropy pre-routing and distributional skewness post-routing.}
 }
