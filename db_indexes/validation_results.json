@@ -1,0 +1,12 @@
+{
+  "coverage": 1.0,
+  "recall_by_bucket": {
+    "high": 0.7,
+    "medium": 0.72,
+    "low": 0.92
+  },
+  "macro_recall": 0.7799999999999999,
+  "micro_recall": 0.78,
+  "mrr": 0.9654558404558405,
+  "bias": -0.13580246913580252
+}

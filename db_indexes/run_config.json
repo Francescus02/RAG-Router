@@ -1,0 +1,23 @@
+{
+  "nlist": 256,
+  "nprobe": 20,
+  "top_k": 10,
+  "samples": 50,
+  "seed": 42,
+  "use_gpu": false,
+  "save_embeddings": false,
+  "cache_embeddings": false,
+  "metric": "l2",
+  "index_type": "ivfflat",
+  "pq_m": 8,
+  "pq_nbits": 8,
+  "embedding_model": "all-MiniLM-L6-v2",
+  "parallel_bm25": false,
+  "bm25_workers": null,
+  "sampling": "strat_equal",
+  "export_csv": false,
+  "save_distances": false,
+  "save_detailed": false,
+  "dry_run": false,
+  "log_level": "INFO"
+}

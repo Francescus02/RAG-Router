@@ -1,0 +1,12 @@
+{
+  "total_passages": 128573,
+  "n_queries": 1273,
+  "rejected_contamination": 668889,
+  "gold_not_found": 0,
+  "gold_integrity_failed": 301,
+  "total_global_attempts": 664380,
+  "cache_size": 1588,
+  "avg_ctx": 101.0,
+  "unique_passages": 1527,
+  "avg_global_attempts": 521.9010212097407
+}
