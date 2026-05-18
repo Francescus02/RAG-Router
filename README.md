@@ -365,6 +365,19 @@ Formal McNemar tests confirm that no EM difference is statistically significant 
 
 ---
 
+### Future Work: Mitigating Data Leakage via Dynamic Percentile Routing
+
+Currently, the entropy threshold for pre-retrieval routing ($\tau_e = 2.04$) is hardcoded, having been empirically derived from a previous data sample (v5). While functional for demonstrating the routing concept in this ablation study, static absolute thresholds present a methodological risk of data leakage and are inherently fragile in production environments. Shannon entropy distributions will inevitably fluctuate if the prompt format is altered or if the underlying LLM is updated.
+
+To further improve the scientific rigor and production-readiness of this pipeline, future iterations should transition from a static threshold to a **Dynamic Percentile Threshold via a Sliding Window**:
+
+* **Sliding Window Memory:** Instead of evaluating against an absolute value, the system maintains a running buffer of the Shannon entropy scores from the last $N$ queries (e.g., $N=500$).
+* **Relative Percentile Routing:** The routing decision becomes a dynamic percentile calculation. For instance, the rule adapts to: *"Route the 15% of queries with the lowest entropy in the current window to zero-shot generation."*
+
+**Scientific and Practical Benefits:** Implementing this approach eliminates the data leakage associated with hyperparameter tuning ($\tau_e$) on an evaluation set. Furthermore, it guarantees a predictable, constant rate of computational savings while automatically self-calibrating against distribution shifts in user queries or upstream changes to the LLM's parametric knowledge.
+
+---
+
 ## References
 
 - Mallen A. et al. (2023). *When Not to Trust Language Models*. ACL 2023. https://arxiv.org/abs/2212.10511
