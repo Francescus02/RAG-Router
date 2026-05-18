@@ -48,8 +48,9 @@ When the post-retrieval statistical signal (skewness, kurtosis, or dispersion) i
 - Zero additional LLM cost.
 - Strictly superior to BM25 fallback (BM25 EM=0.287 vs FAISS EM=0.394, McNemar p≈0.000 in v5).
 
-**5. Entropy Caching**  
-Each query's entropy value is computed **once** during the first combination that uses the `Entropy` strategy (typically `Entropy × Always_FAISS`). The result is cached for the entire ablation run. Since `temperature=0.0` guarantees deterministic outputs, subsequent Entropy combinations reuse the cache, eliminating redundant forward passes across the 8‑combination matrix. 
+**5. Entropy Caching for Ablation Efficiency** Each query's entropy value is computed **once** during the first combination that uses the `Entropy` strategy. Since `temperature=0.0` guarantees deterministic outputs, subsequent combinations reuse the cache, eliminating redundant forward passes across the 8‑combination matrix. 
+
+> ⚠️ **Methodological Note:** This caching mechanism is an engineering optimization designed exclusively for this offline ablation study to avoid redundant GPU hours during evaluation. In a real-world production environment, every *new* user query would inevitably incur the initial probe latency (uncached).
 
 ### 6. Skewness Bias Monitoring
 The framework tracks EM stratified by `s_pop` bucket (HIGH ≥ 1000, MEDIUM 100–999, LOW < 100), enabling analysis of **routing fairness** across entity popularity classes and verification of the s_pop ↔ entropy correlation.
@@ -329,7 +330,7 @@ python scripts/p3_router_popqa.py
 | Entropy × Skew\_Kurt | 0.3904 | 6,487 | 190 | 1,083 | 0.979 |
 | Entropy × Skew\_Moments | 0.3904 | **6,477** | 190 | 1,083 | 0.979 |
 
-† First Entropy run — entropy cache populated during this run (1,273 additional probe forward passes). Subsequent Entropy runs use the cache, achieving latency ≈ 6,500ms.
+† *First Entropy run — entropy cache populated during this run. The latency of 10,913ms represents the **true production latency** for a novel query (approx. +65% overhead vs Always_Retrieve baseline due to the LLM prefill cost of the probe). Subsequent Entropy runs in this table (~6,500ms) use the cache and represent the theoretical baseline of the routing path without the probe overhead.*
 
 ### Progression Across Versions
 
@@ -348,14 +349,14 @@ ROC analysis (ground truth: `s_pop ≥ 1000` as proxy for “LLM knows the answe
 **2. Few-shot prompting is a necessary architectural requirement.**
 The v5→v6 transition (few-shot introduced) improved baseline EM by +1.1pp on identical data and corpus. Applied to v13, baseline EM reaches 0.3936 (+2.72pp over v5).
 
-**3. The entropy probe decoupling resolves the latency bottleneck.**
-v13 Entropy × Skew\_Moments: 6,477ms — **132ms faster** than the Always\_Retrieve baseline. The v6 overhead (+75%) is fully eliminated by using a minimal probe prompt separate from the few-shot generation prompt.
+**3. The entropy probe decoupling mitigates (but does not eliminate) the prefill bottleneck.**
+While separating the probe from the few-shot prompt drastically reduces the massive latency overhead observed in earlier versions (from +75% down to a more manageable margin), computing the logits for the first token still introduces a foundational latency cost. In an un-cached scenario (simulating real production), the probe adds ~4,300ms of overhead. The ~6,500ms latency reported in the cache-hit runs reflects the speed of the retrieval and generation phases alone, but total user-facing latency will inherently increase when entropy routing is applied.
 
 **4. Post-retrieval QE strategies show no statistically significant EM improvement.**  
 Always\_Retrieve × Skew\_Kurt and Skew\_Moments achieve EM = 0.3951 (+0.0015 vs baseline), but McNemar tests (paired, continuity‑corrected) reveal **no statistically significant difference** from the baseline for any configuration (p > 0.05 for all comparisons). The observed EM differences fall within the 95% bootstrap confidence interval width (±0.027). Therefore, the routing strategies **do not harm answer quality**.
 
-**5. Retrieval savings are the primary benefit – quality is preserved.**  
-Entropy routing reduces retrieval calls by **−14.9%** and context tokens by **−14.9%** compared to the Always_Retrieve baseline, with **no statistically significant loss in EM**. The best Entropy configuration (Entropy × Skew\_Moments) also achieves slightly **lower latency** (−132 ms, −2.0%) than the baseline when the entropy cache is populated. This demonstrates that training‑free semantic routing can **cut computational costs without sacrificing accuracy** – a practically valuable trade‑off for deployed RAG systems.
+**5. The core trade-off: API/Token savings vs. Wall-clock latency.**
+Entropy routing reduces retrieval calls by **−14.9%** and context tokens sent to the LLM by **−14.9%** compared to the Always_Retrieve baseline, with **no statistically significant loss in EM**. However, contrary to what the cached latency metrics might implicitly suggest, this is *not* a latency-saving strategy. This framework proves that training-free semantic routing is a highly effective trade-off for deployments where computational/infrastructure cost (tokens and DB queries) is the primary bottleneck, rather than strict real-time responsiveness.
 
 **6. s_pop ↔ entropy correlation on quantized models.**
 ρ_Spearman = -0.1639 on Llama 3.1 8B Q4_K_M, versus ρ ≈ -0.42 reported by Mallen et al. for full‑precision GPT‑3 class models.This weak correlation implies that s_pop is not a reliable proxy for uncertainty on this quantized model, contra Mallen et al. This is an important negative result for practitioners using 4‑bit models
@@ -365,16 +366,23 @@ Formal McNemar tests confirm that no EM difference is statistically significant 
 
 ---
 
-### Future Work: Mitigating Data Leakage via Dynamic Percentile Routing
+### Future Work
 
-Currently, the entropy threshold for pre-retrieval routing ($\tau_e = 2.04$) is hardcoded, having been empirically derived from a previous data sample (v5). While functional for demonstrating the routing concept in this ablation study, static absolute thresholds present a methodological risk of data leakage and are inherently fragile in production environments. Shannon entropy distributions will inevitably fluctuate if the prompt format is altered or if the underlying LLM is updated.
+**Mitigating Data Leakage via Hybrid Dynamic Routing with Absolute Guardrails**
+Currently, the entropy threshold for pre-retrieval routing ($\tau_e = 2.04$) is hardcoded, having been empirically derived from a previous data sample. While functional for demonstrating the routing concept in this ablation study, static absolute thresholds present a methodological risk of data leakage and are inherently fragile in production environments. Shannon entropy distributions will inevitably fluctuate if the prompt format is altered, if the underlying LLM undergoes continuous learning updates, or in the presence of distribution shifts in user traffic.
 
-To further improve the scientific rigor and production-readiness of this pipeline, future iterations should transition from a static threshold to a **Dynamic Percentile Threshold via a Sliding Window**:
+To further improve the scientific rigor and production-readiness of this pipeline, future iterations should transition from a static threshold to a **Hybrid Dynamic Percentile Threshold via a Sliding Window**. Instead of evaluating against a single absolute value, the system will maintain a running buffer of the Shannon entropy scores from the last $N$ queries. The routing rule will adapt dynamically (e.g., *"Route the lowest-entropy queries up to the 15th percentile of the current window to zero-shot generation"*). 
 
-* **Sliding Window Memory:** Instead of evaluating against an absolute value, the system maintains a running buffer of the Shannon entropy scores from the last $N$ queries (e.g., $N=500$).
-* **Relative Percentile Routing:** The routing decision becomes a dynamic percentile calculation. For instance, the rule adapts to: *"Route the 15% of queries with the lowest entropy in the current window to zero-shot generation."*
+Crucially, to avoid the mathematical paradox of forcing hallucinations during periods of anomalous, high-entropy traffic, this dynamic percentile will be bounded by **Absolute Entropy Guardrails**. If a query's entropy exceeds a critical maximum threshold ($H_{max}$), it will strictly be routed to the RAG pipeline, overriding the percentile logic. To maintain low latency in stateless distributed environments, the sliding window can be approximated using distributed Decaying Moving Averages or a Redis-backed buffer. This hybrid approach eliminates data leakage associated with hyperparameter tuning, self-calibrates against parametric shifts, and guarantees computational savings without compromising factual reliability.
 
-**Scientific and Practical Benefits:** Implementing this approach eliminates the data leakage associated with hyperparameter tuning ($\tau_e$) on an evaluation set. Furthermore, it guarantees a predictable, constant rate of computational savings while automatically self-calibrating against distribution shifts in user queries or upstream changes to the LLM's parametric knowledge.
+**Achieving Zero-Overhead Routing via Topology-Aware KV-Cache Reuse**
+While the decoupled entropy probe effectively solved the massive prefill bottleneck observed in earlier iterations, executing two separate forward passes (one for the probe, one for generation) intrinsically introduces a baseline latency. This algorithmic cost can be eliminated by combining mathematical optimizations with advanced inference architecture strategies.
+
+Future implementations will target **Zero-Overhead Routing** through a two-step synergy:
+1. **Targeted Logprobs Extraction:** By disabling full-context logits materialization and requesting `logprobs` exclusively for the newly generated tokens, the massive matrix multiplication overhead over long context windows is bypassed.
+2. **Topology-Aware Prompting and Tree-based Prefix Caching:** Autoregressive Transformers rely on positional causal attention; thus, simply prepending RAG context to a query after an initial probe would invalidate the previously computed KV-cache. To solve this, future designs will re-engineer the prompt topology to a `[System Prompt] -> [User Query] -> [Optional RAG Context]` format. Leveraging advanced caching mechanisms like RadixAttention or PagedAttention (e.g., via vLLM or SGLang), the `[System Prompt] -> [User Query]` segment will act as a shared KV-cache root. 
+
+If the router proceeds with Zero-Shot generation ($H(X) < \tau_e$), the engine will resume generation directly from this root at zero additional cost. If RAG is required, the retrieved context is appended, and the engine computes only the incremental prefill for the newly added context. Together, these optimizations will reduce the temporal cost of the pre-retrieval entropy probe to exactly zero added milliseconds compared to a standard generation run, positioning training-free semantic routing as a strictly dominant strategy for real-time applications.
 
 ---
 
