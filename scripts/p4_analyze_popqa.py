@@ -1,7 +1,7 @@
 """
 p4_analyze_popqa.py
 ===================
-Complete post-hoc analysis of PopQA ablation study v5.
+Complete post-hoc analysis of PopQA ablation study v13.
 
 Output:
   results/fig_em_by_bucket.png        → EM per bucket (high/medium/low) per strategy
@@ -45,7 +45,7 @@ except ImportError:
     print("       ROC curve will be computed manually.")
 
 BASE_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CSV_INPUT   = os.path.join(BASE_DIR, "results_popqa_v5.csv")
+CSV_INPUT   = os.path.join(BASE_DIR, "results_popqa_v13.csv")
 RESULTS_DIR = os.path.join(BASE_DIR, "results")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
@@ -74,7 +74,7 @@ BUCKET_ORDER = ["high", "medium", "low"]
 def load_csv(path: str) -> List[Dict]:
     if not os.path.isfile(path):
         print(f"[ERROR] CSV not found: {path}")
-        print("  Run p3_router_popqa_v5.py first")
+        print("  Run p3_router_popqa_v13.py first")
         sys.exit(1)
     print(f"[LOAD] {path}")
     rows = []
@@ -603,7 +603,7 @@ def generate_text_report(groups: Dict[str, List[Dict]],
     """Generates the textual report with main metrics ready for the paper."""
     lines = []
     lines.append("=" * 72)
-    lines.append("TRAINING‑FREE ADAPTIVE SEMANTIC ROUTING — PopQA v5")
+    lines.append("TRAINING‑FREE ADAPTIVE SEMANTIC ROUTING — PopQA v13")
     lines.append("POST‑HOC ANALYSIS REPORT")
     lines.append("=" * 72)
     lines.append("")
@@ -709,7 +709,7 @@ def generate_text_report(groups: Dict[str, List[Dict]],
 
 def main():
     print("=" * 70)
-    print("  p4_analyze_popqa.py — PopQA v5 post‑hoc analysis")
+    print("  p4_analyze_popqa.py — PopQA v13 post‑hoc analysis")
     print("=" * 70)
 
     rows   = load_csv(CSV_INPUT)
