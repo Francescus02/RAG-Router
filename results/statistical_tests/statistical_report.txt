@@ -36,7 +36,7 @@ SCIENTIFIC INTERPRETATION
 ────────────────────────────────────────────────────────────────────────
   Typical 95% CI width: ±0.0269
   → EM differences < 0.0269
-    are NOT statistically distinguishable with n=453 queries.
+    are NOT statistically distinguishable.
 
   The McNemar test is more sensitive because it leverages query pairing:
   two systems with identical global EM can have different error patterns
@@ -44,6 +44,3 @@ SCIENTIFIC INTERPRETATION
 
   ○ No configuration shows significant difference
     from baseline (McNemar p<0.05).
-    With n=453 queries, the minimum statistical power to detect
-    ΔEM=0.02 is about n=800 queries (power=0.80, α=0.05).
-    Recommendation: extend to 800-1000 queries for future studies.

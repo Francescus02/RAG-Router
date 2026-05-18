@@ -527,9 +527,6 @@ def write_statistical_report(mcnemar_rows: List[Dict],
     else:
         lines.append(f"  ○ No configuration shows significant difference")
         lines.append(f"    from baseline (McNemar p<{ALPHA}).")
-        lines.append(f"    The minimum statistical power to detect")
-        lines.append(f"    ΔEM=0.02 is about n=800 queries (power=0.80, α=0.05).")
-        lines.append(f"    Recommendation: extend to 800-1000 queries for future studies.")
 
     report = "\n".join(lines)
     with open(path, "w", encoding="utf-8") as f:
