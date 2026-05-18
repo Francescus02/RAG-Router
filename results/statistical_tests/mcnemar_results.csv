@@ -1,0 +1,8 @@
+system_a,system_b,n_shared,em_a,em_b,delta_em,statistic,pvalue,b,c,n_discordant,pct_discordant,direction,significant,method,interpretation
+Always_Retrieve × Always_FAISS,Always_Retrieve × Skew_Kurt,1273,0.3936,0.3951,0.0015,0.25,0.625,1,3,4,0.3,B > A,False,exact_binomial,"non sig. (p=0.6250, α=0.05, B > A)"
+Always_Retrieve × Always_FAISS,Always_Retrieve × Skew_Moments,1273,0.3936,0.3951,0.0015,0.25,0.625,1,3,4,0.3,B > A,False,exact_binomial,"non sig. (p=0.6250, α=0.05, B > A)"
+Always_Retrieve × Always_FAISS,Always_Retrieve × Skewness,1273,0.3936,0.3943,0.0007,0.333333,1.0,1,2,3,0.2,B > A,False,exact_binomial,"non sig. (p=1.0000, α=0.05, B > A)"
+Always_Retrieve × Always_FAISS,Entropy × Always_FAISS,1273,0.3936,0.3912,-0.0024,0.114286,0.735317,19,16,35,2.7,A > B,False,chi2_continuity,"non sig. (p=0.7353, α=0.05, A > B)"
+Always_Retrieve × Always_FAISS,Entropy × Skew_Kurt,1273,0.3936,0.3904,-0.0032,0.25,0.617075,20,16,36,2.8,A > B,False,chi2_continuity,"non sig. (p=0.6171, α=0.05, A > B)"
+Always_Retrieve × Always_FAISS,Entropy × Skew_Moments,1273,0.3936,0.3904,-0.0032,0.25,0.617075,20,16,36,2.8,A > B,False,chi2_continuity,"non sig. (p=0.6171, α=0.05, A > B)"
+Always_Retrieve × Always_FAISS,Entropy × Skewness,1273,0.3936,0.3896,-0.004,0.457143,0.498962,20,15,35,2.7,A > B,False,chi2_continuity,"non sig. (p=0.4990, α=0.05, A > B)"

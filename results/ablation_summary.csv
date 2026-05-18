@@ -1,0 +1,9 @@
+combination,pre_strategy,post_strategy,em,f1,lat_mean_ms,lat_p95_ms,recall_at_k,n_zero_shot,n_vector,n_bm25_fb,n_bm25,n_error,n_total,pct_skip,retrieval_calls_mean,tokens_mean_estimate,em_high,em_medium,em_low,n_high,n_medium,n_low
+Always_Retrieve × Always_FAISS,Always_Retrieve,Always_FAISS,0.3936,0.4455,6609.4,9755.3,0.9780,0,1273,0,0,0,1273,0.0,1.000,555.2,0.3542,0.3154,0.5157,432,428,413
+Always_Retrieve × Skew_Kurt,Always_Retrieve,Skew_Kurt,0.3951,0.4467,6603.4,9755.1,0.9819,0,1202,0,0,0,1273,0.0,1.056,555.1,0.3542,0.3178,0.5182,432,428,413
+Always_Retrieve × Skew_Moments,Always_Retrieve,Skew_Moments,0.3951,0.4467,6604.4,9795.7,0.9819,0,1221,0,0,0,1273,0.0,1.041,555.1,0.3542,0.3178,0.5182,432,428,413
+Always_Retrieve × Skewness,Always_Retrieve,Skewness,0.3943,0.4459,6608.6,9793.8,0.9796,0,1226,0,0,0,1273,0.0,1.037,555.2,0.3542,0.3178,0.5157,432,428,413
+Entropy × Always_FAISS,Entropy,Always_FAISS,0.3912,0.4455,10912.7,15135.5,0.9751,190,1083,0,0,0,1273,14.9,0.851,504.3,0.3519,0.3131,0.5133,432,428,413
+Entropy × Skew_Kurt,Entropy,Skew_Kurt,0.3904,0.4453,6487.4,11037.3,0.9788,190,1015,0,0,0,1273,14.9,0.904,504.3,0.3472,0.3131,0.5157,432,428,413
+Entropy × Skew_Moments,Entropy,Skew_Moments,0.3904,0.4453,6476.7,10966.9,0.9788,190,1033,0,0,0,1273,14.9,0.890,504.3,0.3472,0.3131,0.5157,432,428,413
+Entropy × Skewness,Entropy,Skewness,0.3896,0.4445,6502.6,11052.1,0.9760,190,1038,0,0,0,1273,14.9,0.886,504.4,0.3472,0.3131,0.5133,432,428,413

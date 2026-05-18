@@ -1,0 +1,49 @@
+========================================================================
+FORMAL STATISTICAL TESTS — PopQA Ablation Study
+========================================================================
+CSV: c:\Users\Utente\Desktop\Progetto_Routing_RAG\results_popqa_v13.csv
+α = 0.05   Bootstrap: 10000 resamples   Seed: 42
+
+TEST 1 — McNemar (paired comparison vs baseline)
+────────────────────────────────────────────────────────────────────────
+  System B                                   |    ΔEM |    p-val |  disc |  Sig?
+  ────────────────────────────────────────────────────────────────────
+  Entropy × Skewness                         | -0.0040 |   0.4990 |    35 |    NO
+  Entropy × Skew_Kurt                        | -0.0032 |   0.6171 |    36 |    NO
+  Entropy × Skew_Moments                     | -0.0032 |   0.6171 |    36 |    NO
+  Always_Retrieve × Skew_Kurt                | +0.0015 |   0.6250 |     4 |    NO
+  Always_Retrieve × Skew_Moments             | +0.0015 |   0.6250 |     4 |    NO
+  Entropy × Always_FAISS                     | -0.0024 |   0.7353 |    35 |    NO
+  Always_Retrieve × Skewness                 | +0.0007 |   1.0000 |     3 |    NO
+
+  Configurations significantly different from baseline: 0/7
+  ★ = p < 0.05 with Edwards continuity correction (or exact binomial test)
+
+TEST 2 — Bootstrap 95% CI (10,000 resamples)
+────────────────────────────────────────────────────────────────────────
+  Combination                                |     EM |  CI95_lo |  CI95_hi |  Width
+  ────────────────────────────────────────────────────────────────────────
+  Always_Retrieve × Skew_Kurt                | 0.3951 |   0.3684 |   0.4226 | 0.0542
+  Always_Retrieve × Skew_Moments             | 0.3951 |   0.3684 |   0.4226 | 0.0542
+  Always_Retrieve × Skewness                 | 0.3943 |   0.3676 |   0.4218 | 0.0542
+  Always_Retrieve × Always_FAISS             | 0.3936 |   0.3668 |   0.4203 | 0.0534
+  Entropy × Always_FAISS                     | 0.3912 |   0.3645 |   0.4187 | 0.0542
+  Entropy × Skew_Kurt                        | 0.3904 |   0.3637 |   0.4171 | 0.0534
+  Entropy × Skew_Moments                     | 0.3904 |   0.3637 |   0.4171 | 0.0534
+  Entropy × Skewness                         | 0.3896 |   0.3629 |   0.4163 | 0.0534
+
+SCIENTIFIC INTERPRETATION
+────────────────────────────────────────────────────────────────────────
+  Typical 95% CI width: ±0.0269
+  → EM differences < 0.0269
+    are NOT statistically distinguishable with n=453 queries.
+
+  The McNemar test is more sensitive because it leverages query pairing:
+  two systems with identical global EM can have different error patterns
+  (different queries), detectable by McNemar.
+
+  ○ No configuration shows significant difference
+    from baseline (McNemar p<0.05).
+    With n=453 queries, the minimum statistical power to detect
+    ΔEM=0.02 is about n=800 queries (power=0.80, α=0.05).
+    Recommendation: extend to 800-1000 queries for future studies.

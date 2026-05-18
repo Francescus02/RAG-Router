@@ -1,0 +1,52 @@
+========================================================================
+TRAINING‑FREE ADAPTIVE SEMANTIC ROUTING — PopQA v13
+POST‑HOC ANALYSIS REPORT
+========================================================================
+
+1. MAIN RESULTS
+────────────────────────────────────────────────────────────────────────
+   Baseline (Always_Retrieve × Always_FAISS): EM=0.3936  F1=0.4455
+   Best configuration:   Always_Retrieve × Skew_Kurt
+   Best EM:              0.3951  (Δ=+0.0016 vs baseline)
+
+2. FULL RESULTS TABLE
+────────────────────────────────────────────────────────────────────────
+  Combination                                |     EM |     F1 |     Lat |   %ZS |  Rec@k
+  ────────────────────────────────────────────────────────────────────────────────
+  Always_Retrieve × Skew_Kurt                | 0.3951 | 0.4467 |    6603 |   0.0 |  0.982
+  Always_Retrieve × Skew_Moments             | 0.3951 | 0.4467 |    6604 |   0.0 |  0.982
+  Always_Retrieve × Skewness                 | 0.3943 | 0.4459 |    6609 |   0.0 |  0.980
+  Always_Retrieve × Always_FAISS             | 0.3936 | 0.4455 |    6609 |   0.0 |  0.978
+  Entropy × Always_FAISS                     | 0.3912 | 0.4455 |   10913 |  14.9 |  0.975
+  Entropy × Skew_Kurt                        | 0.3904 | 0.4453 |    6487 |  14.9 |  0.979
+  Entropy × Skew_Moments                     | 0.3904 | 0.4453 |    6477 |  14.9 |  0.979
+  Entropy × Skewness                         | 0.3896 | 0.4445 |    6503 |  14.9 |  0.976
+
+3. s_pop BUCKET ANALYSIS
+────────────────────────────────────────────────────────────────────────
+  Always_Retrieve     : HIGH=0.3542  MED=0.3172  LOW=0.5169
+  Entropy             : HIGH=0.3484  MED=0.3131  LOW=0.5145
+
+4. ROC ANALYSIS (entropy as ZS predictor)
+────────────────────────────────────────────────────────────────────────
+  AUC = 0.6498  → predictive power MODERATE (0.55-0.65)
+  Reference: AUC=0.500 = random classifier
+  Interpretation: entropy IS a good predictor of when the LLM knows the answer.
+
+5. CORRELATION s_pop ↔ ENTROPY
+────────────────────────────────────────────────────────────────────────
+  ρ_Spearman = -0.1639
+  Mallen et al. (ACL 2023) report ρ ≈ -0.42 on GPT‑3 class models.
+  On Llama 3.1 8B Q4_K_M: ρ = -0.1639
+  → Weak correlation: fixed threshold is sufficient.
+
+6. COMPUTATIONAL SAVINGS
+────────────────────────────────────────────────────────────────────────
+  Always_Retrieve × Always_FAISS            : ΔLat=+0.0%  ΔRet=+0.0%  ΔTok=+0.0%
+  Always_Retrieve × Skew_Kurt               : ΔLat=+0.1%  ΔRet=-5.6%  ΔTok=+0.0%
+  Always_Retrieve × Skew_Moments            : ΔLat=+0.1%  ΔRet=-4.1%  ΔTok=+0.0%
+  Always_Retrieve × Skewness                : ΔLat=+0.0%  ΔRet=-3.7%  ΔTok=+0.0%
+  Entropy × Always_FAISS                    : ΔLat=-65.1%  ΔRet=+14.9%  ΔTok=+9.2%
+  Entropy × Skew_Kurt                       : ΔLat=+1.8%  ΔRet=+9.6%  ΔTok=+9.2%
+  Entropy × Skew_Moments                    : ΔLat=+2.0%  ΔRet=+11.0%  ΔTok=+9.2%
+  Entropy × Skewness                        : ΔLat=+1.6%  ΔRet=+11.4%  ΔTok=+9.2%
