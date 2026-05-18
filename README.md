@@ -342,7 +342,7 @@ python scripts/p3_router_popqa.py
 ### Key Scientific Findings
 
 **1. Shannon entropy is a valid predictor of LLM knowledge boundaries.**  
-> ROC analysis (ground truth: `s_pop ≥ 1000` as proxy for “LLM knows the answer”, following Mallen et al.) yields AUC = 0.6498 — well above the 0.500 random baseline. The entropy probe correctly identifies ~15% of queries where Llama 3.1 8B has sufficient parametric knowledge to answer without retrieval.  
+ROC analysis (ground truth: `s_pop ≥ 1000` as proxy for “LLM knows the answer”, following Mallen et al.) yields AUC = 0.6498 — well above the 0.500 random baseline. The entropy probe correctly identifies ~15% of queries where Llama 3.1 8B has sufficient parametric knowledge to answer without retrieval.  
 > **Limitation:** As shown in Point 5, the correlation between `s_pop` and entropy is very weak on this quantized model (`ρ = -0.1639`). Therefore, the AUC reported here should be interpreted with caution; it may overestimate the true predictive power of entropy against actual zero‑shot EM. The proxy is used only for consistency with prior literature.
 
 **2. Few-shot prompting is a necessary architectural requirement.**
@@ -397,10 +397,12 @@ If you use this framework or any part of its code in your research, please cite 
 
 ```bibtex
 @misc{ragsemanticRouter2026,
-  title   = {Semantic Routing for RAG: Training-Free Ablation Study on PopQA},
-  year    = {2026},
-  note    = {Ablation study using Llama 3.1 8B Instruct (Q4\_K\_M) on PopQA.
-             Shannon entropy pre-routing and distributional skewness post-routing.
-             n=1,273 queries, stratified by entity popularity (s\_pop).}
+  author       = {Francesco Campigotto}, 
+  title        = {Semantic Routing for RAG: Training-Free Ablation Study on PopQA},
+  year         = {2026},
+  url          = {https://github.com/francescus02/rag-router},
+  note         = {Ablation study using Llama 3.1 8B Instruct (Q4\_K\_M) on PopQA. 
+                  Shannon entropy pre-routing and distributional skewness post-routing. 
+                  n=1,273 queries, stratified by entity popularity (s\_pop).}
 }
 ```
